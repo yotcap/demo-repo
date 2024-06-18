@@ -1,0 +1,168 @@
+<html>
+  <head>
+    <title>print demo</title>
+    <meta name="description" content="CSS打印，支持自定义页眉页脚" />
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8" />
+    <meta
+      name="viewport"
+      id="WebViewport"
+      content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+    />
+    <style>
+      @media print {
+        @page {
+          size: A4 portrait;
+          /* 调整页边距 */
+          margin: 1cm 1cm 1cm;
+        }
+
+        #printDom {
+          display: block !important;
+        }
+      }
+
+      #printDom {
+        /* 打印区域在非打印时不显示 */
+        display: none;
+        position: relative;
+        font-size: 16px;
+        font-family: SimSun, Songti SC;
+      }
+
+      #printDom .page-header {
+        /* 页眉高度 */
+        height: 2cm;
+        display: flex;
+        align-items: center;
+        position: fixed;
+        top: 0mm;
+        width: 100%;
+        border-bottom: 1px solid #ddd;
+        z-index: 2000;
+      }
+
+      #printDom .page-header-space {
+        /* 控制内容区距离顶部的距离，防止与页眉重叠 */
+        height: 2cm;
+      }
+
+      #printDom .page-footer {
+        /* 页脚高度 */
+        height: 1cm;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        border-top: 1px solid grey;
+        z-index: 2000;
+      }
+
+      #printDom .page-footer-space {
+        /* 控制内容区距离底部的距离，防止与页脚重叠 */
+        height: 1.5cm;
+      }
+
+      #printDom > table {
+        width: 100%;
+      }
+      
+      #printDom .content table {
+        width: 100%;
+        font-size: 30px;
+      }
+
+      #printDom .content .header {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <button onclick="handlePrint()">打 印</button>
+    <div id="printDom">
+      <!-- 页眉 -->
+      <div class="page-header">Logo</div>
+      <table>
+        <!-- 占位，给页眉留出位置 -->
+        <thead>
+          <tr>
+            <td><div class="page-header-space"></div></td>
+          </tr>
+        </thead>
+        <!-- start: 正文 -->
+        <tbody>
+          <tr>
+            <td>
+              <div class="content">
+                <!-- 正文的标题 -->
+                <h1 class="header">H1</h1>
+                <div>
+                  <!-- 正文内容，可随意写，demo是表格 -->
+                  <table>
+                    <thead>
+                      <tr>
+                        <td>Index</td>
+                        <td>Name</td>
+                      </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                    <tfoot></tfoot>
+                  </table>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+        <!-- end: 正文 -->
+        <!-- 占位，给页脚留出位置 -->
+        <tfoot>
+          <tr>
+            <td><div class="page-footer-space"></div></td>
+          </tr>
+        </tfoot>
+      </table>
+      <!-- 页脚 -->
+      <div class="page-footer">Footer</div>
+    </div>
+
+    <script>
+      /**
+       * 打印指定元素
+       * @param {string} element 需要打印的元素选择器
+       */
+      function printElement(element) {
+        var printContents = document.querySelector(element).cloneNode(true);
+        
+        var popupWin = window.open('', '_blank');
+        popupWin.document.open();
+        
+        const styles = document.head.innerHTML;
+        popupWin.document.write(`<html><head><title>Print Title</title>${styles}</head><body onload="window.print(); window.close();">`);
+        popupWin.document.body.appendChild(printContents);
+        popupWin.document.write('</body></html>');
+        
+        popupWin.document.close();
+      }
+
+      function handlePrint() {
+        printElement('#printDom');
+      }
+
+      const tempTableData = document.querySelector('#tableBody');
+      const tempFragument = document.createDocumentFragment();
+
+      // mock data
+      for (let i = 0; i < 30; i++) {
+        const _tr = document.createElement('tr');
+        const _td1 = document.createElement('td');
+        _td1.appendChild(document.createTextNode(`No${i + 1}`));
+        const _td2 = document.createElement('td');
+        _td2.appendChild(document.createTextNode(new Date().getTime()));
+        _tr.appendChild(_td1);
+        _tr.appendChild(_td2);
+        tempFragument.appendChild(_tr);
+      }
+
+      tempTableData.appendChild(tempFragument);
+    </script>
+  </body>
+</html>
